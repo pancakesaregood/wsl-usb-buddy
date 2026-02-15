@@ -14,6 +14,7 @@ This build is intentionally **stateless** and **public-safe**:
 - List USB devices from `usbipd list`
 - Filter to "acceptable devices" by VID:PID prefix and keyword
 - Optional toggle to show all devices for troubleshooting
+- Optional toggle to auto-attach known devices during refresh
 - Responsive device list:
   - Columns auto-scale with window width
   - Visible row count auto-fits the number of shown devices (within min/max limits)
@@ -81,6 +82,9 @@ Use **Show ALL devices (troubleshooting)** to bypass filtering.
 
 - Operations run in background threads to keep the UI responsive.
 - Command failures are shown in popup dialogs and written to the log panel.
+- Auto-attach targets known security token devices not currently attached to WSL.
+- Auto-attach retries are throttled after failures to avoid repeated spam.
+- Manual **Detach**/**Disable Sharing** for a BUSID temporarily blocks auto-attach for that BUSID until you manually attach it again or re-enable auto-attach.
 - If tray dependencies are missing, tray features are disabled gracefully.
 - This project does not write operational state to disk by design.
 

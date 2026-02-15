@@ -1,122 +1,74 @@
-🧩 WSL USB Buddy
+# WSL USB Buddy (Public-Safe / Stateless)
 
-Stateless USB-to-WSL Attachment Tool for Security Keys (usbipd-win v4+)
+Small Tkinter desktop app for managing USB passthrough from Windows to WSL with `usbipd-win` (v4+).
 
-Source: 
+This build is intentionally **stateless** and **public-safe**:
+- No config file
+- No saved profiles
+- No persistent storage of BUSIDs, device names, window size, or history
+- Session-only in-memory state
 
-main
+## Features
 
-📌 Purpose
+- List USB devices from `usbipd list`
+- Filter to "acceptable devices" by VID:PID prefix and keyword
+- Optional toggle to show all devices for troubleshooting
+- Enable sharing (`usbipd bind`)
+- Disable sharing (`usbipd unbind`)
+- Attach to WSL (`usbipd bind` + `usbipd attach --wsl`)
+- Detach from WSL (`usbipd detach`)
+- Open a new WSL terminal as root (`wsl.exe -u root`)
+- Session log in the UI
 
-WSL USB Buddy is a public-safe GUI utility that allows administrators to:
+## Requirements
 
-Attach USB security devices (ex: YubiKeys) to WSL
+- Windows with WSL installed
+- `usbipd-win` v4 or newer available in `PATH`
+- Python 3.x
+- Tkinter (included with standard Windows Python installs)
+- Recommended: run the app as **Administrator** for bind/attach/detach/unbind operations
 
-Detach them back to Windows
+## File
 
-Enable / disable USB sharing using usbipd
+- Main app: `main.py`
 
-Launch WSL as root for privileged configuration tasks
+## Run
 
-This tool was created to support secure workflows such as:
+From PowerShell in this folder:
 
-✔️ Hardware-gated sudo
-✔️ FIDO-backed authentication
-✔️ YubiKey-protected Ansible execution
-✔️ Secure network automation environments inside WSL
-✔️ Zero-trust change-control pipelines
+```powershell
+python .\main.py
+```
 
-🔐 Security Design
+## Typical workflow
 
-This application is intentionally designed to be:
+1. Click **Refresh**.
+2. Select a USB device from the list.
+3. Click **Enable Sharing** if needed.
+4. Click **Attach to WSL**.
+5. Use **Detach from WSL** when done.
+6. Optionally disable sharing with **Disable Sharing**.
 
-Feature	Status
-Writes config to disk	❌ No
-Stores device BUSIDs	❌ No
-Saves device names	❌ No
-Saves profiles	❌ No
-Persistent state	❌ No
-Telemetry	❌ No
-Logging beyond session	❌ No
+## Device filter behavior
 
-All operational state exists in-memory only for the current session.
+By default, only devices matching one of these checks are shown:
+- VID:PID starts with `1050:` (Yubico)
+- Device name contains one of:
+  - `yubico`
+  - `yubikey`
+  - `security key`
+  - `fido`
 
-This allows:
+Use **Show ALL devices (troubleshooting)** to bypass filtering.
 
-Safe public distribution
+## Notes
 
-Compliance with locked-down enterprise environments
+- Operations run in background threads to keep the UI responsive.
+- Command failures are shown in popup dialogs and written to the log panel.
+- This project does not write operational state to disk by design.
 
-Use on regulated infrastructure (ex: healthcare networks)
+## Troubleshooting
 
-No forensic residue of hardware device use
-
-🧰 Requirements
-Dependency	Version
-Windows	10 / 11
-Python	3.x
-usbipd-win	v4+
-WSL	Installed
-Tkinter	Included w/ Python
-
-Install usbipd:
-
-winget install usbipd
-
-🚀 Running the Application
-
-Run from an elevated shell:
-
-python main.py
-
-
-⚠️ Administrator privileges are recommended
-Bind / attach operations may fail without elevation.
-
-🖥️ Interface Overview
-Device Controls
-Button	Function
-🔄 Refresh	Updates USB device list
-🔓 Enable Sharing	Runs usbipd bind
-🔒 Disable Sharing	Runs usbipd unbind
-✅ Attach to WSL	Runs bind + attach
-🧹 Detach from WSL	Runs usbipd detach
-🐧 Open WSL as root
-
-Launches:
-
-wsl.exe -u root
-
-
-Used for:
-
-PAM configuration
-
-FIDO2 sudo setup
-
-libfido2 / yubico-pam installation
-
-Hardware-gated privilege workflows
-
-🔎 Device Filtering
-
-By default, the UI shows only:
-
-Yubico VID:PID
-
-Devices containing keywords:
-
-yubikey
-
-security key
-
-fido
-
-yubico
-
-Vendor filter:
-
-ALLOW_VIDPID_PREFIXES = ["1050:"]
-
-
-Enable Show ALL Devices for troubleshooting.
+- If operations fail with access errors, restart the app as Administrator.
+- If `usbipd` is not found, ensure `usbipd-win` is installed and in `PATH`.
+- If no device appears, enable **Show ALL devices** to verify detection.

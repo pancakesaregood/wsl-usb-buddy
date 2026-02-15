@@ -10,14 +10,23 @@ This build is intentionally **stateless** and **public-safe**:
 
 ## Features
 
+- Modernized desktop UI (cards, status chip, cleaner action layout)
 - List USB devices from `usbipd list`
 - Filter to "acceptable devices" by VID:PID prefix and keyword
 - Optional toggle to show all devices for troubleshooting
+- Responsive device list:
+  - Columns auto-scale with window width
+  - Visible row count auto-fits the number of shown devices (within min/max limits)
 - Enable sharing (`usbipd bind`)
 - Disable sharing (`usbipd unbind`)
 - Attach to WSL (`usbipd bind` + `usbipd attach --wsl`)
 - Detach from WSL (`usbipd detach`)
 - Open a new WSL terminal as root (`wsl.exe -u root`)
+- System tray token monitor with color status:
+  - Red: no security key detected on host
+  - Blue: security key detected on host (not attached to WSL)
+  - Green: security key attached to WSL
+  - Minimizing the app hides it to the tray (no taskbar icon while hidden)
 - Session log in the UI
 
 ## Requirements
@@ -26,6 +35,7 @@ This build is intentionally **stateless** and **public-safe**:
 - `usbipd-win` v4 or newer available in `PATH`
 - Python 3.x
 - Tkinter (included with standard Windows Python installs)
+- Optional (for tray icon): `pystray`, `Pillow`
 - Recommended: run the app as **Administrator** for bind/attach/detach/unbind operations
 
 ## File
@@ -38,6 +48,12 @@ From PowerShell in this folder:
 
 ```powershell
 python .\main.py
+```
+
+If you want tray status icons, install:
+
+```powershell
+python -m pip install pystray Pillow
 ```
 
 ## Typical workflow
@@ -65,6 +81,7 @@ Use **Show ALL devices (troubleshooting)** to bypass filtering.
 
 - Operations run in background threads to keep the UI responsive.
 - Command failures are shown in popup dialogs and written to the log panel.
+- If tray dependencies are missing, tray features are disabled gracefully.
 - This project does not write operational state to disk by design.
 
 ## Troubleshooting

@@ -1,44 +1,115 @@
-# 🧩 WSL USB Buddy (Public-Safe / Stateless)
-
-A dead-simple GUI launcher to manage **usbipd v4** device sharing and attach a **YubiKey / FIDO security key** from Windows into **WSL** — designed for enterprise environments where:
-
-* Users are **not Linux-savvy**
-* Security teams require **sudo lockdown inside WSL**
-* Hardware-backed auth (FIDO2/PIV) is required for automation (e.g., Ansible)
-;)
+# 🧩 WSL USB Buddy  
+### Hardware Security Key Passthrough Manager for WSL (YubiKey / FIDO2)
 
 ---
 
-## ✨ Features
+## 📌 What is this?
 
-From a friendly GUI:
+**WSL USB Buddy** is a simple, user-friendly desktop application that allows Windows users to safely attach a hardware security key (such as a **YubiKey**) to **WSL (Windows Subsystem for Linux)** without using the command line.
 
-* 🔄 Lists acceptable USB security devices (e.g., YubiKey)
-* 🔓 **Enable Sharing** → `usbipd bind --busid X-Y`
-* ✅ **Attach to WSL** → `bind` + `usbipd attach --wsl --busid X-Y`
-* 🧹 **Detach from WSL** → `usbipd detach --busid X-Y`
-* 🔒 **Disable Sharing** → `usbipd unbind --busid X-Y`
-* 🐧 **Open WSL as root** → launches `wsl.exe -u root`
+It is designed for enterprise environments where:
 
-No command line required for end users.
+- Hardware-backed authentication is required (FIDO2 / PIV)
+- WSL must run with restricted or locked-down `sudo`
+- Users are not Linux-savvy
+- Automation platforms (ex: **Ansible**) require hardware-based authentication
+- Security teams require:
+  - auditability
+  - least-privilege workflows
+  - no persistent credential storage
 
-## 🧱 Architecture
+---
+
+## 🎯 Use Case
+
+Attach a hardware security key from Windows into WSL so that Linux-based tools can authenticate using:
+
+- SSH with FIDO2
+- Smartcard / PIV
+- GPG
+- PAM integrations
+- TACACS workflows
+- Automation platforms (ex: Ansible)
+
+Without exposing:
+
+- private keys
+- device configuration
+- endpoint identity
+- persistent device metadata
+
+---
+
+## 🖥️ Installer Application
+
+The included **GUI Installer**:
+
+✔ Displays an agreement screen describing all system changes  
+✔ Allows the user to opt-in to installation steps  
+✔ Shows installation progress with live logging  
+✔ Deploys WSL USB Buddy to:
 
 ```
-Windows Host
- ├─ usbipd-win (v4+)
- ├─ Python + Tkinter GUI
- └─ WSL USB Buddy
-        │
-        ├─ bind / unbind (sharing)
-        └─ attach / detach (WSL)
-                 │
-                 ▼
-              WSL Distro
-              ├─ lsusb
-              ├─ pcscd / scdaemon
-              └─ libfido2-tools (optional)
+C:\yub\
 ```
+
+✔ Optionally installs:
+
+- `usbipd-win`
+- WSL verification tools (`usbutils`, etc.)
+- System tray support (`pystray`, `pillow`)
+
+---
+
+## 🟢🔵🔴 System Tray Status Indicator
+
+Once installed, the launcher provides a tray icon indicating hardware key state:
+
+| Color | Meaning |
+|------|--------|
+🔴 Red | No acceptable security device shared or attached |
+🔵 Blue | Device is shared (bound) but not attached to WSL |
+🟢 Green | Device is attached to WSL |
+
+---
+
+## 🧰 Application Features
+
+From the GUI:
+
+- 🔄 List supported USB security devices
+- 🔓 Enable Sharing (usbipd bind)
+- 🔒 Disable Sharing (usbipd unbind)
+- ✅ Attach to WSL
+- 🧹 Detach from WSL
+- 🐧 Launch WSL as root (for secure automation workflows)
+- 📍 Filter for acceptable hardware security devices only
+
+No command-line interaction required.
+
+---
+
+## 🔐 Public-Safe / Stateless Design
+
+This project is intentionally built to be safe for:
+
+- internal deployment
+- public GitHub release
+- cross-organization sharing
+
+It does **not** store:
+
+❌ BUSIDs  
+❌ device names  
+❌ hardware identifiers  
+❌ window state  
+❌ user configuration  
+❌ profiles  
+❌ logs  
+
+All device state exists **in memory only** for the duration of the session.
+
+No personal or endpoint data is written to disk.
 
 ---
 
@@ -46,21 +117,23 @@ Windows Host
 
 ### Windows Host
 
-* Windows 10 / 11
-* WSL already installed and running
-* **usbipd-win v4+**
-* Python 3.x (with `py.exe` launcher recommended)
+- Windows 10 / 11
+- WSL installed and running
+- Python 3.x
+- Administrator privileges (for USB passthrough)
 
-### WSL (Debian / Ubuntu)
+---
+
+### WSL Distribution
+
+Debian / Ubuntu recommended
 
 Required:
-
 ```
 usbutils
 ```
 
 Optional:
-
 ```
 pcscd
 scdaemon
@@ -69,45 +142,23 @@ libfido2-tools
 
 ---
 
-## 🚀 Install (Windows)
+## 🚀 Installation
 
-Open **PowerShell as Administrator**
+### Step 1 – Run Installer (as Administrator)
 
-### Step 1 – Install prerequisites
-
-```
-.\1_windows_prereqs.ps1
-```
-
-### Step 2 – Deploy launcher
-
-Place:
+Double-click:
 
 ```
-yub_usb_buddy_public_safe_stateless_rootbutton.py
+run_installer_as_admin_tray.bat
 ```
 
-in the same folder as:
+Follow the on-screen prompts and accept the installation agreement.
 
-```
-2_windows_deploy.ps1
-```
+---
 
-Then run:
+### Step 2 – Launch Buddy
 
-```
-.\2_windows_deploy.ps1
-```
-
-This deploys to:
-
-```
-C:\yub\
- ├─ yub_usb_buddy_public_safe_stateless_rootbutton.py
- └─ run_wsl_usb_buddy_as_admin.bat
-```
-
-Launch:
+After installation:
 
 ```
 C:\yub\run_wsl_usb_buddy_as_admin.bat
@@ -115,154 +166,73 @@ C:\yub\run_wsl_usb_buddy_as_admin.bat
 
 ---
 
-## 🐧 Install (WSL)
+## 🧪 Verify Key Inside WSL
 
-Inside your WSL distro:
+After attaching your device:
 
-### Step 1 – Install tools
+Inside WSL:
 
-```
-chmod +x 1_wsl_prereqs.sh
-sudo ./1_wsl_prereqs.sh
-```
-
-### Step 2 – Verify key visibility
-
-(After attaching from GUI)
-
-```
-chmod +x 2_wsl_verify_key.sh
-./2_wsl_verify_key.sh
-```
-
-Expected:
-
-```
+```bash
 lsusb | grep -i yubico
 ```
 
 ---
 
-## 🧑‍💻 Usage
+## 🧹 Uninstall
 
-1. Run:
+### Windows
+
+Run:
+
+```powershell
+.\3_windows_uninstall.ps1
+```
+
+Removes:
 
 ```
-C:\yub\run_wsl_usb_buddy_as_admin.bat
-```
-
-2. Plug in your security key
-
-3. Click:
-
-* **Enable Sharing**
-* **Attach to WSL**
-
-4. (Optional) Click:
-
-* **Open WSL as root**
-
-5. Verify inside WSL:
-
-```
-lsusb
+C:\yub\
+Desktop shortcut (if present)
 ```
 
 ---
 
-## 🔐 Security Model
+### WSL
 
-* No secrets are handled by this tool
-* No FIDO private material is accessible to Windows or WSL userspace
-* Hardware-backed authentication remains inside the token
-* Sharing is mediated via `usbipd` kernel-level redirection
+Inside WSL:
 
-Enables:
+```bash
+sudo ./3_wsl_uninstall.sh
+```
 
-* FIDO2 / PIV usage inside WSL
-* Automation workflows (e.g., Ansible)
-* Reduced requirement for sudo inside Linux
-* Centralized policy enforcement on Windows host
+Removes:
+
+- usbutils
+- pcscd
+- libfido2-tools
+- optional dependencies
 
 ---
 
-## 🧰 Repository Layout
+## ⚠️ Security Notes
 
-```
-.
-├─ yub_usb_buddy_public_safe_stateless_rootbutton.py
-├─ 1_windows_prereqs.ps1
-├─ 2_windows_deploy.ps1
-├─ 1_wsl_prereqs.sh
-├─ 2_wsl_verify_key.sh
-├─ LICENSE
-└─ README.md
-```
-
----
-
-## 🧯 Troubleshooting
-
-### Attach fails
-
-Ensure launcher was run **as Administrator**
-
-Try:
-
-* Enable Sharing → Attach to WSL again
-
----
-
-### `lsusb` shows nothing
-
-Check from Windows:
-
-```
-usbipd list
-```
-
-Device must show:
-
-```
-Attached
-```
-
----
-
-### Python launcher not found
-
-Install Python from:
-
-* python.org
-* Microsoft Store
-
-Re-run deploy script.
+- Private keys remain inside the hardware device
+- No credentials are exported into Windows or WSL userspace
+- USB passthrough is mediated via `usbipd`
+- Device sharing must be enabled by an Administrator
 
 ---
 
 ## 📜 License
 
-This project is licensed under the terms of the:
+This project is licensed under:
 
-**GNU General Public License v3.0**
+```
+GNU General Public License v3.0
+```
 
 See:
 
 ```
 LICENSE
 ```
-
----
-
-## 🤝 Contributing
-
-Pull requests welcome for:
-
-* Multi-distro attach support
-* Auto-attach on insert
-* Enterprise packaging (MSIX / Intune)
-* Opt-in logging (non-default)
-
----
-
-Happy automating 🔐

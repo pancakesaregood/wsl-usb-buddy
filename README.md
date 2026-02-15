@@ -5,7 +5,7 @@ A dead-simple GUI launcher to manage **usbipd v4** device sharing and attach a *
 * Users are **not Linux-savvy**
 * Security teams require **sudo lockdown inside WSL**
 * Hardware-backed auth (FIDO2/PIV) is required for automation (e.g., Ansible)
-* You want to **share this tool publicly** without leaking endpoint identifiers
+;)
 
 ---
 
@@ -21,29 +21,6 @@ From a friendly GUI:
 * 🐧 **Open WSL as root** → launches `wsl.exe -u root`
 
 No command line required for end users.
-
----
-
-## 🛡️ Public-Safe / Stateless Design
-
-This build is intentionally **stateless** so it can be shared publicly:
-
-* ❌ No config files
-* ❌ No saved BUSIDs
-* ❌ No saved device names
-* ❌ No saved profiles
-* ❌ No persistent logs
-* ❌ No endpoint-identifying artifacts written to disk
-
-All device data exists **in memory only** for the current session.
-
-This prevents accidental disclosure of:
-
-* USB topology fingerprints
-* Security token serials (if exposed by OS descriptors)
-* User-specific endpoint identifiers
-
----
 
 ## 🧱 Architecture
 
